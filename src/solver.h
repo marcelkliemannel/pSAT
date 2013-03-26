@@ -5,9 +5,9 @@
  * #                                                           #
  * ############################################################# 
  *
- * poseidonsat.h
+ * solver.h
  *
- *    This is the header file for poseidonsat.c.
+ *    This is the header file for solver.c.
  *
  *
  * #############################################################
@@ -20,8 +20,8 @@
  */
 
 
-#ifndef POSEIDONSAT_H
-#define POSEIDONSAT_H
+#ifndef SOLVER_H
+#define SOLVER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,13 +31,13 @@
 #include <time.h>
 #include <limits.h>
 
-#include "solver.h"
+#include "poseidonsat.h"
 
 
-#define PS_INSTANCEFILE_PATH_MAXLENGTH 255 	/* The maximum length of the instance file path */
-#define PS_SOLVERNAME_MAXLENGTH 10 			/* The maximum length of the solver name. */
+#define S_INSTANCEFILE_LINE_MAXLENGTH 255 /* The maximum length of a line from the instance file. */
 
 
-void pExit(const char errorMessage[], ...);
+void solver(unsigned short **solution, char instanceFilePath[], char solver[], unsigned int randomSeed);
 
-#endif /* POSEIDONSAT_H */
+
+#endif /* SOLVER_H */
