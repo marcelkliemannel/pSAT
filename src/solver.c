@@ -31,31 +31,45 @@
  * value indicates, that are now more clause satisfied as before
  * and a positive more unsatisfied.
  */
-int flipVarQuality(unsigned int var, unsigned short newValue, int ***clauseList, unsigned int **varClauseList, int **clauseStatusList) {
-	unsigned int iVarClauseList = 0; /* Loop variable for varClauseList. */
-	unsigned int iClauseListLit = 0; /* Loop variable for iClauseList literal (second index). */
+int flipVarQuality(unsigned int var, short newValue, int ***clauseList, unsigned int **varClauseList, int **clauseStatusList) {
+	unsigned int iVarClauseList; /* Loop variable for varClauseList. */
+	unsigned int iClauseListLit; /* Loop variable for iClauseList literal (second index). */
 	
-	unsigned int statisfiedClauses = 0;		/* Number of clauses new statisfied by flipping this variable. */
-	unsigned int unstatisfiedClauses = 0;	/* Number of clauses new unstatisfied by flipping this variable. */
+	unsigned int oldClauseStatus;								/* Number of clauses new satisfied by flipping this variable. */
+	unsigned int newClauseStatus;								/* Number of clauses new unsatisfied by flipping this variable. */
+	unsigned int unsatisfiedClauses = (*clauseStatusList)[0];	/* Total number of unsatisfied clauses after the flipping. */
+	
+	unsigned int curClause; /* Current selected clause in the iVarClauseList loop. */
 	
 	
-	for (iVarClauseList = 1; iVarClauseList <= (*varClauseList)[0]; iVarClauseList++) {											/* Loop over every clause which contains this variable. */
-		if ((*clauseStatusList)[(*varClauseList)[iVarClauseList]] >= 1) { 					/* The clause is satisfied by more then one literal. */
-			continue;
-		} else if ((*clauseStatusList)[(*varClauseList)[iVarClauseList]] == (var * -1)) {	/* The clause is satisfied by this variable only. */
-			unstatisfiedClauses++;
-		} else if ((*clauseStatusList)[(*varClauseList)[iVarClauseList]] == 0) {			/* The clause is unsatisfied so far. */
-			for (iClauseListLit = 1; iClauseListLit <= (*clauseList)[(*varClauseList)[iVarClauseList]][0]; iClauseListLit++) {	/* Loop over every literal in this clause. */
-				if (((*clauseList)[(*varClauseList)[iVarClauseList]][iClauseListLit] == var && newValue == 1) ||
-					(((*clauseList)[(*varClauseList)[iVarClauseList]][iClauseListLit] == (var * -1)) && newValue == 0)) {
-						statisfiedClauses++;
+	for (iVarClauseList = 1; iVarClauseList <= (*varClauseList)[0]; iVarClauseList++) {				/* Loop over every clause which contains this variable. */
+		curClause = (*varClauseList)[iVarClauseList];
+		oldClauseStatus = (*clauseStatusList)[curClause];
+		newClauseStatus = oldClauseStatus;
+		
+		for (iClauseListLit = 1; iClauseListLit <= (*clauseList)[curClause][0]; iClauseListLit++) {	/* Loop over every literal in the clause. */
+			if ((*clauseList)[curClause][iClauseListLit] == var || (*clauseList)[curClause][iClauseListLit] * -1 == var) {
+				if (((*clauseList)[curClause][iClauseListLit] > 0 && newValue == 1) ||
+					((*clauseList)[curClause][iClauseListLit] < 0 && newValue == 0)) {			/* The variable flip is true in this clause. */
+					newClauseStatus = newClauseStatus + 1;  /* The clause is now satisfied by this variable. */
+				} else if (((*clauseList)[curClause][iClauseListLit] > 0 && newValue == 0) || 
+							((*clauseList)[curClause][iClauseListLit] < 0 && newValue == 1)) {	/* The variable flip is false in this clause. */
+					newClauseStatus = newClauseStatus - 1;
 				}
+							
+				break;
 			}
+		}
+					
+		if (oldClauseStatus == 0 && newClauseStatus > 0) {
+			unsatisfiedClauses = unsatisfiedClauses - 1;
+		} else if (oldClauseStatus > 0 && newClauseStatus == 0) {
+			unsatisfiedClauses = unsatisfiedClauses + 1;
 		}
 	}
 	
 	
-	return unstatisfiedClauses - statisfiedClauses;
+	return unsatisfiedClauses;
 }
 
 
@@ -160,10 +174,10 @@ void readInstanceFile(char instanceFilePath[], int ***clauseList, unsigned int *
 								(*clauseList)[(analysedClauses + 1)][(analysedClauseLit + 1)] = litTmp;
 								if (litTmp > 0) {
 									(*varList)[litTmp][0] = (*varList)[litTmp][0] + 1;
-									(*varList)[litTmp][(*varList)[litTmp][0]] = analysedClauses;
+									(*varList)[litTmp][(*varList)[litTmp][0]] = (analysedClauses + 1);
 								} else {
 									(*varList)[(litTmp * -1)][0] = (*varList)[(litTmp * -1)][0] + 1;
-									(*varList)[(litTmp * -1)][(*varList)[(litTmp * -1)][0]] = analysedClauses;
+									(*varList)[(litTmp * -1)][(*varList)[(litTmp * -1)][0]] = (analysedClauses + 1);
 								}
 							}
 							
@@ -220,10 +234,16 @@ void solver(unsigned short **solution, char instanceFilePath[], char algoName[])
 
 	unsigned int restartsCount = 0;		/* Number of restarts. */
 	unsigned int solverIterations = 0;	/* Number of solver iterations. This is reseted after each restart! */
+	
 	unsigned int iRandSolAsgmt; 		/* Loop variable for the random solution assignment. */
-	unsigned int iClauseList = 0;		/* Loop variable for clauseList after the random solution assignment. */
-	unsigned int iClauseListLit = 0;	/* Loop variable for every literal in the clauseList. */
-	int clauseStatus = 0;				/* Current clause status inside the clauseStatusList initialisation. */
+	
+	unsigned int iClauseList;		/* Loop variable for clauseList. */
+	unsigned int iClauseListLit;	/* Loop variable for every literal in the clauseList. */
+	unsigned int iVarListClause;	/* Loop variable for every clause inside the varList. */
+	
+	int flippedVariable;	/* The flipped variable selected by the algorithmen. */
+	int oldClauseStatus; 	/* The old clause status before the flip of the variable. */
+	unsigned int curClause;	/* Current selected clause in the iVarClauseList loop. */
 	
 	unsigned int iclauseListCU; /* Loop variable for the clauseList clean up. */
 	unsigned int iVarListCU; 	/* Loop variable for the varList clean up. */
@@ -240,34 +260,62 @@ void solver(unsigned short **solution, char instanceFilePath[], char algoName[])
 			(*solution)[iRandSolAsgmt] = rand() % 2;
 	
 		for (iClauseList = 1; iClauseList <= clauseList[0][0]; iClauseList++) {							/* Loop over every clause to determine the initialisation of the clauseStatusList with the random solution assignment. */
-			clauseStatus = 0;
-			
 			for (iClauseListLit = 1; iClauseListLit <= clauseList[iClauseList][0]; iClauseListLit++) {	/* Loop over every literal in the clause. */
 				if ((clauseList[iClauseList][iClauseListLit] > 0 && (*solution)[clauseList[iClauseList][iClauseListLit]] == 1) ||
-					(clauseList[iClauseList][iClauseListLit] < 0 && (*solution)[(clauseList[iClauseList][iClauseListLit] * -1)] == 0)) {
-					if (clauseStatus == 0) {
-						if (clauseList[iClauseList][iClauseListLit] > 0) clauseStatus = clauseList[iClauseList][iClauseListLit] * -1;
-						else  clauseStatus = clauseList[iClauseList][iClauseListLit];
-					} else if (clauseStatus < 0) {
-						clauseStatus = 2;
-					} else {
-						clauseStatus++;
+					(clauseList[iClauseList][iClauseListLit] < 0 && (*solution)[(clauseList[iClauseList][iClauseListLit] * -1)] == 0)) { /* The variable flip is true in this clause. */
+						clauseStatusList[iClauseList] = clauseStatusList[iClauseList] + 1; /* The clause is now satisfied by this variable. */
+				}
+			}
+			
+			if (clauseStatusList[iClauseList] != 0)
+				clauseStatusList[0] = clauseStatusList[0] + 1;
+		}
+		
+
+		/* The solving process. */
+		while(solverIterations < (S_SOLVERITERATIONS_MAXFACTOR * varList[0][0])) {
+			if (strcmp(algoName, "rots")) {			/* Robust tabu search */
+				flippedVariable = rotsGetFlippedVariable(&(*solution), &clauseList, &varList, &clauseStatusList);
+			} else if (strcmp(algoName, "ils")) {	/* ILS */
+			
+			} else {								/* ADD ALOGORITHM HERE! */
+				pExit("Solving alogrithm with the name \"%s\n not founded!\n",algoName);
+			}
+			
+			(*solution)[flippedVariable] = 1 - (*solution)[flippedVariable];
+			//printf("%d\n",flippedVariable);
+			//exit(1);
+			if (flippedVariable > 0) {
+				for (iVarListClause = 1; iVarListClause <= varList[flippedVariable][0]; iVarListClause++) {			/* Loop over every clause which contains this variable. */
+					curClause = varList[flippedVariable][iVarListClause];
+					oldClauseStatus = clauseStatusList[curClause];
+					
+					for (iClauseListLit = 1; iClauseListLit <= clauseList[curClause][0]; iClauseListLit++) {	/* Loop over every literal in the clause. */
+						if (clauseList[curClause][iClauseListLit] == flippedVariable || clauseList[curClause][iClauseListLit] *-1 == flippedVariable) {
+							if ((clauseList[curClause][iClauseListLit] > 0 && (*solution)[flippedVariable] == 1) ||
+								(clauseList[curClause][iClauseListLit] < 0 && (*solution)[flippedVariable] == 0)) {		/* The variable flip is true in this clause. */
+								clauseStatusList[curClause] = clauseStatusList[curClause] + 1;  /* The clause is now satisfied by this variable. */
+							} else if ((clauseList[curClause][iClauseListLit] > 0 && (*solution)[flippedVariable] == 0) ||
+										(clauseList[curClause][iClauseListLit] < 0 && (*solution)[flippedVariable] == 1)) { /* The variable flip is false in this clause. */
+								clauseStatusList[curClause] = clauseStatusList[curClause] - 1;
+							}
+							
+							break;
+						}
+					}
+					
+					if (oldClauseStatus == 0 && clauseStatusList[curClause] > 0) {
+						clauseStatusList[0] = clauseStatusList[0] - 1;
+					} else if (oldClauseStatus > 0 && clauseStatusList[curClause] == 0) {
+						clauseStatusList[0] = clauseStatusList[0] + 1;
 					}
 				}
 			}
 			
-			clauseStatusList[iClauseList] = clauseStatus;
-		}
-		
-		
-		
-		
-		/* The solving process. */
-		while(solverIterations < (S_SOLVERITERATIONS_MAXFACTOR * varList[0][0])) {
-			
-			
 			solverIterations++;
 		}
+			
+		printf("%d\n",clauseStatusList[0]);
 		
 		restartsCount++;
 	}
