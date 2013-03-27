@@ -35,7 +35,7 @@
 
 
 #define PS_INSTANCEFILE_PATH_MAXLENGTH 255 	/* The maximum length of the instance file path */
-#define PS_SOLVERNAME_MAXLENGTH 10 			/* The maximum length of the solver name. */
+#define PS_ALGONAME_MAXLENGTH 10 			/* The maximum length of the algorithm name. */
 
 
 void pExit(const char errorMessage[], ...);

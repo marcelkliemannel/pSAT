@@ -45,7 +45,7 @@ void pExit(const char errorMessage[], ...) {
  */
 int main(int argc, char* argv[]) {
 	char instanceFilePath[PS_INSTANCEFILE_PATH_MAXLENGTH];	/* The path to the instance file. It has to be set through the program argument! */
-	char solverName[PS_SOLVERNAME_MAXLENGTH];  				/* The solver name. It has to be set through the program argument! */
+	char algoName[PS_ALGONAME_MAXLENGTH];  					/* The algorithm name. It has to be set through the program argument! */
 	unsigned int randomSeed = time(NULL); 					/* The random seed. Default is the current unix time step. */
 	
 	unsigned int iArgc = 1;	/* 0 is the command to run the program... */
@@ -71,14 +71,14 @@ int main(int argc, char* argv[]) {
 	   		}
 	   }
 	   
-	   if (strcmp(argv[iArgc], "-s") == 0) { /* The solver name */
+	   if (strcmp(argv[iArgc], "-a") == 0) { /* The algorithm name */
 	   		if ((iArgc + 1) < argc) {
-	   			if (strlen(argv[(iArgc + 1)]) <= PS_SOLVERNAME_MAXLENGTH)
-	   				strcpy(solverName, argv[(iArgc + 1)]);
+	   			if (strlen(argv[(iArgc + 1)]) <= PS_ALGONAME_MAXLENGTH)
+	   				strcpy(algoName, argv[(iArgc + 1)]);
 	   			else
-	   				pExit("The solver name can have a maximal length of %d!\n", PS_SOLVERNAME_MAXLENGTH);
+	   				pExit("The algorithm name can have a maximal length of %d!\n", PS_ALGONAME_MAXLENGTH);
 	   		} else {
-	   			pExit("You must specify a solver name after the -s parameter!\n");
+	   			pExit("You must specify a solver algorithm after the -a parameter!\n");
 	   		}
 	   }
 	   
@@ -96,10 +96,12 @@ int main(int argc, char* argv[]) {
 	   iArgc++;
     }
     
-    if (strlen(instanceFilePath) == 0 || strlen(solverName) == 0) pExit("Usage: %s -i -s...\n", argv[0]); /* TO-DO: Usage description */
+    if (strlen(instanceFilePath) == 0 || strlen(algoName) == 0) pExit("Usage: %s -i -s...\n", argv[0]); /* TO-DO: Usage description */
 
+    
+    srand(randomSeed);
 
-    solver(&solution, instanceFilePath, solverName, randomSeed);
+    solver(&solution, instanceFilePath, algoName);
 
 
     /* Clean up! */
