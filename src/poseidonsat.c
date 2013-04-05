@@ -52,22 +52,24 @@ int main(int argc, char* argv[]) {
 	
 	/* The founded solution as an array with the
 	 * boolean status of each variable (which are the indices).
-	 * The first index (solution[0]) contains the quality of the
-	 * solution (the number of unsatisfied clauses).
+	 * The first index (solution[0]) contains the number
+	 * of literals.
 	 */
 	unsigned short *solution;
-	
+	int solutionQuality = -1; 	/* The qulaity of the solution = number of unsatisfied clause (-1 = the solution is unknown). */
+	unsigned int iSolution; 	/* Loop variable for solution printing */
+
 
 	/* Argument verification. */
     while (iArgc < argc) {
-	   if (strcmp(argv[iArgc], "-i") == 0) { /* The instance file path */
+	   if (strcmp(argv[iArgc], "-f") == 0) { /* The instance file path */
 	   		if ((iArgc + 1) < argc) {
 	   			if (strlen(argv[(iArgc + 1)]) <= PS_INSTANCEFILE_PATH_MAXLENGTH)
 	   				strcpy(instanceFilePath, argv[(iArgc + 1)]);
 	   			else
 	   				pExit("The path to the instance file can have a maximal length of %d!\n", PS_INSTANCEFILE_PATH_MAXLENGTH);
 	   		} else {
-	   			pExit("You must specify a path to the instance file after the -i parameter!\n");
+	   			pExit("You must specify a path to the instance file after the -f parameter!\n");
 	   		}
 	   }
 	   
@@ -96,12 +98,35 @@ int main(int argc, char* argv[]) {
 	   iArgc++;
     }
     
-    if (strlen(instanceFilePath) == 0 || strlen(algoName) == 0) pExit("Usage: %s -i -s...\n", argv[0]); /* TO-DO: Usage description */
+    if (strlen(instanceFilePath) == 0 || strlen(algoName) == 0) pExit("Usage: %s -f -s...\n", argv[0]); /* TO-DO: Usage description */
 
     
+    /* Get a solution */
     srand(randomSeed);
 
-    solver(&solution, instanceFilePath, algoName);
+    solutionQuality = solver(&solution, instanceFilePath, algoName);
+
+
+    /* Print the best known solution */
+    if (solutionQuality == -1) {		/* The solution is unknown. */
+		printf("The solution is unknown.\n");
+	} else if (solutionQuality == 0) {	/* The instance was satisfiable. */
+		printf("v ");
+		for (iSolution = 1; iSolution <= solution[0]; iSolution++) {
+			if (solution[iSolution] == 0) {
+				printf("-%d ", iSolution);
+			} else if (solution[iSolution] == 1) {
+				printf("%d ", iSolution);
+			} else {
+				pExit("The solution array has at position %d a wrong value of %d.\n", iSolution, solution[iSolution]);
+			} 
+		}
+		printf("0\n");
+		
+		printf("s SATISFIABLE\n");
+	} else { 							/* The instance is unsatisfiable/the termination criterium was reached. */
+		printf("s UNSATISFIABLE\n");
+	}
 
 
     /* Clean up! */
