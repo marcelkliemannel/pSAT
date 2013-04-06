@@ -2,3 +2,4 @@
 psat
 psat.dSYM
 instances/
+*.o

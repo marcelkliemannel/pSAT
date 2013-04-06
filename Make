@@ -1,1 +1,0 @@
-gcc src/psat.c src/solver.c src/rots.c src/ilssa.c -o psat -Wall

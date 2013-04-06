@@ -42,9 +42,9 @@ void pExit(const char errorMessage[], ...) {
  * program parameters, run the solving process and prints the
  * result. */
 int main(int argc, char* argv[]) {
-	char instanceFilePath[PS_INSTANCEFILE_PATH_MAXLENGTH];	/* The path to the instance file. It has to be set through the program argument! */
-	char algoName[PS_ALGONAME_MAXLENGTH];  					/* The algorithm name. It has to be set through the program argument! */
-	unsigned int randomSeed = time(NULL); 					/* The random seed. Default is the current unix time step. */
+	char instanceFilePath[PSAT_INSTANCEFILE_PATH_MAXLENGTH];	/* The path to the instance file. It has to be set through the program argument! */
+	char algoName[PSAT_ALGONAME_MAXLENGTH];  					/* The algorithm name. It has to be set through the program argument! */
+	unsigned int randomSeed = time(NULL); 						/* The random seed. Default is the current unix time step. */
 	
 	unsigned int iArgc = 1;	/* 0 is the command to run the program... */
 	
@@ -62,31 +62,35 @@ int main(int argc, char* argv[]) {
     while (iArgc < argc) {
 	   if (strcmp(argv[iArgc], "-h") == 0) { /* The help page */
 	   	   printf("-------------------------------------------------------\n");
+	   	   printf("-                                                     -\n");
 	   	   printf("-                pSAT - SLS SAT Solver                -\n");
 	   	   printf("-                                                     -\n");
 	   	   printf("- Developed by                                        -\n");
 	   	   printf("-   Marcel Kliemannel <dev[at]marcel-kliemannel.de>   -\n");
+	   	   printf("-                                                     -\n");
+	   	   printf("-   https://github.com/mkliemannel/pSAT               -\n");
+	   	   printf("-                                                     -\n");
 	   	   printf("-------------------------------------------------------\n");
-	   	   printf("\n\n\n\n");
+	   	   printf("\n");
 	   	   printf("Program parameters:\n");
-	   	   printf("\n\n");
+	   	   printf("\n");
 	   	   printf("    -f  The path to the instance file (with an maximal length of %d). Required!\n", PSAT_INSTANCEFILE_PATH_MAXLENGTH);
-	   	   printf("\n\n");
+	   	   printf("\n");
 	   	   printf("    -a  The algorithm name (with an maximal length of %d). Required!\n", PSAT_ALGONAME_MAXLENGTH);
 	   	   printf("        Currently implemented are:\n");
 	   	   printf("        - Robust Tabu Search (RoTS), name: \"rots\" and\n");
 	   	   printf("        - Iterated Local Search with Simulated Annealing (ILS/SA), name: \"ilssa\".\n");
-	   	   printf("\n\n");
-	   	   printf("    -r  An random seed as a positive integer number between 0 and %u. Default is the current UNIX timestamp\n", UINT_MAX);
-	   	   printf("\n\n");
-	   	   printf("    -h  This page\n");
+	   	   printf("\n");
+	   	   printf("    -r  An random seed as a positive integer number between 0 and %u. Default is the current UNIX timestamp.\n", UINT_MAX);
+	   	   printf("\n");
+	   	   printf("    -h  This page.\n");
 	   		
 		   return EXIT_SUCCESS;
 	   }
 	   
 	   if (strcmp(argv[iArgc], "-f") == 0) { /* The instance file path */
 	   		if ((iArgc + 1) < argc) {
-	   			if (strlen(argv[(iArgc + 1)]) <= PS_INSTANCEFILE_PATH_MAXLENGTH)
+	   			if (strlen(argv[(iArgc + 1)]) <= PSAT_INSTANCEFILE_PATH_MAXLENGTH)
 	   				strcpy(instanceFilePath, argv[(iArgc + 1)]);
 	   			else
 	   				pExit("The path to the instance file can have an maximal length of %d!\n", PSAT_INSTANCEFILE_PATH_MAXLENGTH);
@@ -97,7 +101,7 @@ int main(int argc, char* argv[]) {
 	   
 	   if (strcmp(argv[iArgc], "-a") == 0) { /* The algorithm name */
 	   		if ((iArgc + 1) < argc) {
-	   			if (strlen(argv[(iArgc + 1)]) <= PS_ALGONAME_MAXLENGTH)
+	   			if (strlen(argv[(iArgc + 1)]) <= PSAT_ALGONAME_MAXLENGTH)
 	   				strcpy(algoName, argv[(iArgc + 1)]);
 	   			else
 	   				pExit("The algorithm name can have an maximal length of %d!\n", PSAT_ALGONAME_MAXLENGTH);
