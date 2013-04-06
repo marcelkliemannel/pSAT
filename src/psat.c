@@ -1,12 +1,12 @@
 /* ############################################################# 
  * #                                                           #
- * #                 poseidonsat - SLS SAT Solver              #
+ * #                    pSAT - SLS SAT Solver                  #
  * #                                                           #
  * ############################################################# 
  *
- * poseidonsat.c
+ * psat.c
  *
- *    This is the main file of poseidonsat.
+ *    This is the main file of pSAT.
  *
  *
  * #############################################################
@@ -18,14 +18,13 @@
  */
  
  
-#include "poseidonsat.h"
+#include "psat.h"
 
 
 /* pExit()
  *
  * This function combines the function printing an error message 
- * and exit the program with the status code defined in EXIT_FAILURE.
- */
+ * and exit the program with the status code defined in EXIT_FAILURE. */
 void pExit(const char errorMessage[], ...) {
 	/* Get all arguments for the formated output. */
     va_list args;
@@ -40,9 +39,8 @@ void pExit(const char errorMessage[], ...) {
 /* main()
  *
  * This is the main program function. It gets and verifies the
- * program arguments, run the solving process and prints the
- * result.
- */
+ * program parameters, run the solving process and prints the
+ * result. */
 int main(int argc, char* argv[]) {
 	char instanceFilePath[PS_INSTANCEFILE_PATH_MAXLENGTH];	/* The path to the instance file. It has to be set through the program argument! */
 	char algoName[PS_ALGONAME_MAXLENGTH];  					/* The algorithm name. It has to be set through the program argument! */
@@ -50,26 +48,50 @@ int main(int argc, char* argv[]) {
 	
 	unsigned int iArgc = 1;	/* 0 is the command to run the program... */
 	
-	/* The founded solution as an array with the
+	/* The founded solution as a array with the
 	 * boolean status of each variable (which are the indices).
 	 * The first index (solution[0]) contains the number
 	 * of literals.
 	 */
 	unsigned short *solution;
-	int solutionQuality = -1; 	/* The qulaity of the solution = number of unsatisfied clause (-1 = the solution is unknown). */
-	unsigned int iSolution; 	/* Loop variable for solution printing */
+	int solutionQuality = -1; 	/* The qulaity of the solution represented by the number of unsatisfied clause ("-1" = the solution is unknown). */
+	unsigned int iSolution; 	/* Loop variable for solution solution */
 
 
 	/* Argument verification. */
     while (iArgc < argc) {
+	   if (strcmp(argv[iArgc], "-h") == 0) { /* The help page */
+	   	   printf("-------------------------------------------------------\n");
+	   	   printf("-                pSAT - SLS SAT Solver                -\n");
+	   	   printf("-                                                     -\n");
+	   	   printf("- Developed by                                        -\n");
+	   	   printf("-   Marcel Kliemannel <dev[at]marcel-kliemannel.de>   -\n");
+	   	   printf("-------------------------------------------------------\n");
+	   	   printf("\n\n\n\n");
+	   	   printf("Program parameters:\n");
+	   	   printf("\n\n");
+	   	   printf("    -f  The path to the instance file (with an maximal length of %d). Required!\n", PSAT_INSTANCEFILE_PATH_MAXLENGTH);
+	   	   printf("\n\n");
+	   	   printf("    -a  The algorithm name (with an maximal length of %d). Required!\n", PSAT_ALGONAME_MAXLENGTH);
+	   	   printf("        Currently implemented are:\n");
+	   	   printf("        - Robust Tabu Search (RoTS), name: \"rots\" and\n");
+	   	   printf("        - Iterated Local Search with Simulated Annealing (ILS/SA), name: \"ilssa\".\n");
+	   	   printf("\n\n");
+	   	   printf("    -r  An random seed as a positive integer number between 0 and %u. Default is the current UNIX timestamp\n", UINT_MAX);
+	   	   printf("\n\n");
+	   	   printf("    -h  This page\n");
+	   		
+		   return EXIT_SUCCESS;
+	   }
+	   
 	   if (strcmp(argv[iArgc], "-f") == 0) { /* The instance file path */
 	   		if ((iArgc + 1) < argc) {
 	   			if (strlen(argv[(iArgc + 1)]) <= PS_INSTANCEFILE_PATH_MAXLENGTH)
 	   				strcpy(instanceFilePath, argv[(iArgc + 1)]);
 	   			else
-	   				pExit("The path to the instance file can have a maximal length of %d!\n", PS_INSTANCEFILE_PATH_MAXLENGTH);
+	   				pExit("The path to the instance file can have an maximal length of %d!\n", PSAT_INSTANCEFILE_PATH_MAXLENGTH);
 	   		} else {
-	   			pExit("You must specify a path to the instance file after the -f parameter!\n");
+	   			pExit("You must specify an path to the instance file after the -f parameter!\n");
 	   		}
 	   }
 	   
@@ -78,9 +100,9 @@ int main(int argc, char* argv[]) {
 	   			if (strlen(argv[(iArgc + 1)]) <= PS_ALGONAME_MAXLENGTH)
 	   				strcpy(algoName, argv[(iArgc + 1)]);
 	   			else
-	   				pExit("The algorithm name can have a maximal length of %d!\n", PS_ALGONAME_MAXLENGTH);
+	   				pExit("The algorithm name can have an maximal length of %d!\n", PSAT_ALGONAME_MAXLENGTH);
 	   		} else {
-	   			pExit("You must specify a solver algorithm after the -a parameter!\n");
+	   			pExit("You must specify an solver algorithm after the -a parameter!\n");
 	   		}
 	   }
 	   
@@ -91,14 +113,14 @@ int main(int argc, char* argv[]) {
 	   			else
 	   				pExit("The random seed has to be and positive integer number between 0 and %u!\n", UINT_MAX);
 	   		} else {
-	   			pExit("You must specify a random seed after the -r parameter!\n");
+	   			pExit("You must specify an random seed after the -r parameter!\n");
 	   		}
 	   }
 	   	   
 	   iArgc++;
     }
     
-    if (strlen(instanceFilePath) == 0 || strlen(algoName) == 0) pExit("Usage: %s -f -s...\n", argv[0]); /* TO-DO: Usage description */
+    if (strlen(instanceFilePath) == 0 || strlen(algoName) == 0) pExit("You must specify at least the instance file path (-f) and the algorithm name (-a). Use \"%s -h\" for more information.\n", argv[0]); /* TO-DO: Usage description */
 
     
     /* Get a solution */

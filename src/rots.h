@@ -1,6 +1,6 @@
 /* ############################################################# 
  * #                                                           #
- * #                 poseidonsat - SLS SAT Solver              #
+ * #                    pSAT - SLS SAT Solver                  #
  * #                                                           #
  * ############################################################# 
  *
@@ -29,15 +29,24 @@
 #include "solver.h"
 
 
-#define ROTS_TABUTENURE_MIN 5
-#define ROTS_TABUTENURE_MAX 10
+#define ROTS_TABUTENURE_MIN 10		/* Minimum tabu tenure */
+#define ROTS_TABUTENURE_MAX 15		/* Maximum tabu tenure */
+
+/* This factor multiplied with the number of
+ * variables for the stagnation detection.
+ * Care has to be taken that this number is lower
+ * then the maximum solver iterations factor
+ * definded in the solver.h. */
+#define ROTS_STAGNATION_FACTOR 10	
 
 
-void rotsInitialisation(unsigned short **solution, int ***clauseList, int ***varList, int **clauseStatusList);
+void rotsInitialisation(int ***varList);
 
-void rotsReInitialisation(unsigned short **solution, int ***clauseList, int ***varList, int **clauseStatusList);
+void rotsReInitialisation(int ***varList);
 
-int rotsGetFlippedVariable(unsigned int solverIerations, unsigned short **solution, int ***clauseList, int ***varList, int **clauseStatusList);
+short rotsGetFlippedVariables(int **flippedVariables, unsigned int solverIteration, unsigned short **solution, int ***varList, int **varScoreList, int **clauseStatusList);
+
+void rotsCleanUp();
 
 
 #endif /* ROTS_H */

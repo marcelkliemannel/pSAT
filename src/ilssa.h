@@ -1,13 +1,12 @@
-/*
- * ############################################################# 
+/* ############################################################# 
  * #                                                           #
- * #                 poseidonsat - SLS SAT Solver              #
+ * #                    pSAT - SLS SAT Solver                  #
  * #                                                           #
  * ############################################################# 
  *
- * poseidonsat.h
+ * ilssa.h
  *
- *    This is the header file for poseidonsat.c.
+ *    This is the header file for ilssa.c.
  *
  *
  * #############################################################
@@ -16,28 +15,30 @@
  * #      Marcel Kliemannel <dev[at]marcel-kliemannel.de>      #
  * #                                                           #
  * #############################################################
- *
  */
 
 
-#ifndef POSEIDONSAT_H
-#define POSEIDONSAT_H
+#ifndef ILSSA_H
+#define ILSSA_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 #include <stdbool.h>
-#include <time.h>
-#include <limits.h>
+#include <math.h>
 
 #include "solver.h"
 
 
-#define PS_INSTANCEFILE_PATH_MAXLENGTH 255 	/* The maximum length of the instance file path */
-#define PS_ALGONAME_MAXLENGTH 10 			/* The maximum length of the algorithm name. */
+#define ILSSA_TEMPERATURE_MAX 0.3		/* Maximum temperature */
+#define ILSSA_TEMPERATURE_MIN 0.01		/* Minimum temperature */
 
 
-void pExit(const char errorMessage[], ...);
+void ilssaInitialisation(int ***varList);
 
-#endif /* POSEIDONSAT_H */
+short ilssaGetFlippedVariables(int **flippedVariables, unsigned int solverIteration, unsigned short **solution, int ***varList, int **varScoreList, int **clauseStatusList);
+
+void ilssaCleanUp();
+
+
+#endif /* ILSSA_H */
