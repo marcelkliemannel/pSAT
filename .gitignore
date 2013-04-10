@@ -3,3 +3,4 @@ psat
 psat.dSYM
 instances/
 *.o
+run.sh

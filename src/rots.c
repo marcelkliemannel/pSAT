@@ -79,7 +79,7 @@ short rotsGetFlippedVariables(int **flippedVariables, unsigned int solverIterati
 		
 	
 	if (solverIteration % (*varList)[0][0] == 0)
-		tabuList[0] = ((ROTS_TABUTENURE_MAX + 1) - ROTS_TABUTENURE_MIN) + ROTS_TABUTENURE_MIN;	/* Reset the tabu tenure */
+		tabuList[0] = (((int)((3 * (*varList)[0][0])/2) + 1) - (int)(((*varList)[0][0])/2)) + (int)(((*varList)[0][0])/2);	/* Reset the tabu tenure */
 
 
 	(*flippedVariables)[0] = 0;
@@ -127,6 +127,7 @@ short rotsGetFlippedVariables(int **flippedVariables, unsigned int solverIterati
 		}
 		
 	}
+
 
 	if (solutionCandidates[0] >= 1) { /* Select a solution candidate uniformly */
 		flippedVariable = solutionCandidates[((rand() % solutionCandidates[0]) + 1)];

@@ -36,7 +36,7 @@
 
 #define S_INSTANCEFILE_LINE_MAXLENGTH 255 /* The maximum length of a line from the instance file. */
 
-#define S_RESTARTS_MAX 10000			  	/* The maximum number of possible restarts. */
+#define S_RESTARTS_MAX 1000000000		  	/* The maximum number of possible restarts. */
 #define S_SOLVERITERATIONS_MAXFACTOR 10		/* This factor multiplied with the number of variables is the maximum number of solver iterations. */
 
 

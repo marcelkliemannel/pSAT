@@ -29,15 +29,12 @@
 #include "solver.h"
 
 
-#define ROTS_TABUTENURE_MIN 10		/* Minimum tabu tenure */
-#define ROTS_TABUTENURE_MAX 15		/* Maximum tabu tenure */
-
 /* This factor multiplied with the number of
  * variables for the stagnation detection.
  * Care has to be taken that this number is lower
  * then the maximum solver iterations factor
  * definded in the solver.h. */
-#define ROTS_STAGNATION_FACTOR 10	
+#define ROTS_STAGNATION_FACTOR 5	
 
 
 void rotsInitialisation(int ***varList);

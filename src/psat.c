@@ -19,7 +19,7 @@
  
  
 #include "psat.h"
-
+#define TEST 100
 
 /* pExit()
  *
@@ -33,6 +33,11 @@ void pExit(const char errorMessage[], ...) {
     va_end(args);
 
 	exit(EXIT_FAILURE);
+}
+
+int compare (const void * a, const void * b)
+{
+  return ( *(float*)a - *(float*)b );
 }
 
 
@@ -112,10 +117,10 @@ int main(int argc, char* argv[]) {
 	   
 	   if (strcmp(argv[iArgc], "-r") == 0) { /* The random seed */
 	   		if ((iArgc + 1) < argc) {
-	   			if (atoi(argv[(iArgc + 1)]) >= 0 && atoi(argv[(iArgc + 1)]) < UINT_MAX)
+	   			if (atoi(argv[(iArgc + 1)]) >= 0 && atoi(argv[(iArgc + 1)]) < RAND_MAX)
 	   				randomSeed = atoi(argv[(iArgc + 1)]);
 	   			else
-	   				pExit("The random seed has to be and positive integer number between 0 and %u!\n", UINT_MAX);
+	   				pExit("The random seed has to be and positive integer number between 0 and %u!\n", RAND_MAX);
 	   		} else {
 	   			pExit("You must specify an random seed after the -r parameter!\n");
 	   		}
@@ -129,7 +134,7 @@ int main(int argc, char* argv[]) {
     
     /* Get a solution */
     srand(randomSeed);
-
+    
     solutionQuality = solver(&solution, instanceFilePath, algoName);
 
 
@@ -150,8 +155,8 @@ int main(int argc, char* argv[]) {
 		printf("0\n");
 		
 		printf("s SATISFIABLE\n");
-	} else { 							/* The instance is unsatisfiable/the termination criterium was reached. */
-		printf("s UNSATISFIABLE\n");
+	} else { 							/* The termination criterium was reached. */
+		/*printf("s UNSATISFIABLE\n");*/
 	}
 
 

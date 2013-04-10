@@ -65,8 +65,8 @@ void updateClauseStatusList(int **flippedVariables, unsigned short **solution, i
 	unsigned int iFlippedVariables;		/* Loop variable for flippedVariables. */
 	unsigned int iVarListClause; 		/* Loop variable for varList. */
 	unsigned int unsatisfiedClauses;	/* Number of unsatisfied clauses. */
-	unsigned int oldClauseStatus;		/* Number of clauses new satisfied by flipping this variable. */
-	unsigned int newClauseStatus;		/* Number of clauses new unsatisfied by flipping this variable. */
+	int oldClauseStatus;		/* Number of clauses new satisfied by flipping this variable. */
+	int newClauseStatus;		/* Number of clauses new unsatisfied by flipping this variable. */
 	unsigned short varValue;			/* Current variable status. */
 	int curClause; 						/* Current selected clause in the iVarClauseList loop. */
 
@@ -342,8 +342,7 @@ int solver(unsigned short **solution, char instanceFilePath[], char algoName[]) 
 			pExit("No (re)initialisation function for the solving alogrithm with the name \"%s\" not founded!\n", algoName);
 		}
 
-
-		while(solverIterations < (S_SOLVERITERATIONS_MAXFACTOR * varList[0][0])) { /* The solving process */
+		while(clauseStatusList[0] > 0 && solverIterations < (S_SOLVERITERATIONS_MAXFACTOR * varList[0][0])) { /* The solving process */
 			flippedVariables[0] = 0;
 
 			if (strcmp(algoName, "rots") == 0) {			/* Robust Tabu Search (RoTS) */
@@ -369,9 +368,9 @@ int solver(unsigned short **solution, char instanceFilePath[], char algoName[]) 
 			} else if (getFlippedVariablesStatus == -1) {	/* An restart is needed */
 				break;
 			}
-			
 			solverIterations++;
 		}
+		
 		
 		if (clauseStatusList[0] == 0)
 			break; /* Solution founded */
@@ -379,18 +378,21 @@ int solver(unsigned short **solution, char instanceFilePath[], char algoName[]) 
 		restartsCount++;
 	}
 
-
 	/* Clean up! */
 	if (strcmp(algoName, "rots") == 0) {			/* Robust Tabu Search (RoTS) */
-		rotsCleanUp();
+		//rotsCleanUp();
 	} else if (strcmp(algoName, "ilssa") == 0) {	/* ILS/SA */
-		ilssaCleanUp();
+		//ilssaCleanUp();
 	}
 
-	for(iclauseListCU = 0; iclauseListCU <= clauseList[0][0]; iclauseListCU++) free(clauseList[iclauseListCU]);
+	for(iclauseListCU = 0; iclauseListCU <= clauseList[0][0]; iclauseListCU++)
+		free(clauseList[iclauseListCU]);
+		
 	free(clauseList);
 	
-	for(iVarListCU = 0; iVarListCU <= varList[0][0]; iVarListCU++) free(varList[iVarListCU]);
+	for(iVarListCU = 0; iVarListCU <= varList[0][0]; iVarListCU++)
+		free(varList[iVarListCU]);
+		
 	free(varList);
 
 
