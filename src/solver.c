@@ -281,6 +281,8 @@ int solver(unsigned short **solution, char instanceFilePath[], char algoName[]) 
 
 	unsigned int restartsCount = 0;		/* Number of restarts. */
 	unsigned int solverIterations = 0;	/* Number of solver iterations. This is reseted after each restart! */
+
+	int solutionQuality; 	/* Return value */
 	
 	unsigned int iRandSolAsgmt; 	/* Loop variable for the random solution assignment. */
 	unsigned int iClauseList;		/* Loop variable for clauseList in the random solution assignment. */
@@ -296,7 +298,9 @@ int solver(unsigned short **solution, char instanceFilePath[], char algoName[]) 
 	int *flippedVariables;			/* The flipped variables selected by the algorithm. */
 	unsigned int iFlippedVariables;	/* Loop variable for the flippedVariables. */
 	
-	unsigned int iclauseListCU; /* Loop variable for the clauseList clean up. */
+	unsigned int clauseListCU; 	/* Number of clauses for the clean-up loop. */
+	unsigned int iclauseListCU; 	/* Loop variable for the clauseList clean up. */
+	unsigned int varListCU; 	/* Number of variables for the clean-up loop. */
 	unsigned int iVarListCU; 	/* Loop variable for the varList clean up. */
 	
 	
@@ -371,12 +375,14 @@ int solver(unsigned short **solution, char instanceFilePath[], char algoName[]) 
 			solverIterations++;
 		}
 		
-		
 		if (clauseStatusList[0] == 0)
 			break; /* Solution founded */
 			
 		restartsCount++;
 	}
+
+	solutionQuality = clauseStatusList[0];
+
 
 	/* Clean up! */
 	if (strcmp(algoName, "rots") == 0) {			/* Robust Tabu Search (RoTS) */
@@ -385,23 +391,29 @@ int solver(unsigned short **solution, char instanceFilePath[], char algoName[]) 
 		//ilssaCleanUp();
 	}
 
-	for(iclauseListCU = 0; iclauseListCU <= clauseList[0][0]; iclauseListCU++)
+
+	clauseListCU = clauseList[0][0];
+
+	for(iclauseListCU = 0; iclauseListCU <= clauseListCU; iclauseListCU++) 
 		free(clauseList[iclauseListCU]);
 		
 	free(clauseList);
 	
-	for(iVarListCU = 0; iVarListCU <= varList[0][0]; iVarListCU++)
+
+	varListCU = varList[0][0];
+
+	for(iVarListCU = 0; iVarListCU <= varListCU; iVarListCU++)
 		free(varList[iVarListCU]);
 		
 	free(varList);
 
 
 	free(varScoreList);
-	
+
 	free(clauseStatusList);
 	
 	free(flippedVariables);
 	
 	
-	return clauseStatusList[0];
+	return solutionQuality;
 }
