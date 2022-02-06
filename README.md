@@ -2,7 +2,7 @@
 
 C framework for **SLS-SAT-Solvers** with an implementation for **Robust Tabu Search (RoTS)** and **Iterated Local Search with Simulated Annealing (ILS/SA)**.
 
-The code was created a long time ago for a university project and is not maintained.
+⚠️ The code was written a long time ago for an university project and is not maintained anymore.
 
 
 ## License
